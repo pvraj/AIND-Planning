@@ -74,9 +74,9 @@ class AirCargoProblem(Problem):
 
                         precond_positive.append(expr('At(%s, %s)' % (cargo, airport)))
                         precond_positive.append(expr('At(%s, %s)' % (plane, airport)))
-                        precond_positive.append(expr('Cargo(%s)' % cargo))
-                        precond_positive.append(expr('Plane(%s)' % plane))
-                        precond_positive.append(expr('Airport(%s)' % airport))
+                        # precond_positive.append(expr('Cargo(%s)' % cargo))
+                        # precond_positive.append(expr('Plane(%s)' % plane))
+                        # precond_positive.append(expr('Airport(%s)' % airport))
 
                         # do we need to list every negative precondition?
 
@@ -104,9 +104,9 @@ class AirCargoProblem(Problem):
 
                         precond_positive.append(expr('In(%s, %s)' % (cargo, plane)))
                         precond_positive.append(expr('At(%s, %s)' % (plane, airport)))
-                        precond_positive.append(expr('Cargo(%s)' % cargo))
-                        precond_positive.append(expr('Plane(%s)' % plane))
-                        precond_positive.append(expr('Airport(%s)' % airport))
+                        # precond_positive.append(expr('Cargo(%s)' % cargo))
+                        # precond_positive.append(expr('Plane(%s)' % plane))
+                        # precond_positive.append(expr('Airport(%s)' % airport))
 
                         # negative preconditions?
 
@@ -207,6 +207,7 @@ class AirCargoProblem(Problem):
         h_const = 1
         return h_const
 
+    # what is this cache statement doing?
     @lru_cache(maxsize=8192)
     def h_pg_levelsum(self, node: Node):
         """This heuristic uses a planning graph representation of the problem
@@ -219,6 +220,7 @@ class AirCargoProblem(Problem):
         pg_levelsum = pg.h_levelsum()
         return pg_levelsum
 
+    # what is this cache statement doing?
     @lru_cache(maxsize=8192)
     def h_ignore_preconditions(self, node: Node):
         """This heuristic estimates the minimum number of actions that must be
@@ -261,18 +263,15 @@ def air_cargo_p2() -> AirCargoProblem:
     planes = ['P1', 'P2', 'P3']
     airports = ['SFO', 'JFK', 'ATL']
     pos = [expr('At(C1, SFO)'), expr('At(C2, JFK)'), expr('At(C3, ATL)'),
-           expr('At(P1, SFO)'), expr('At(P2, JFK)'), expr('At(P3, ATL)'),
-           expr('Cargo(C1)'), expr('Cargo(C2)'), expr('Cargo(C3)'),
-           expr('Plane(P1)'), expr('Plane(P2)'), expr('Plane(P3)'),
-           expr('Airport(JFK)'), expr('Airport(SFO)'), expr('Airport(ATL)'), ]
-    neg = [expr('At(C1, JFK)'), expr('At(C1, ATL'), expr('In(C1, P1)'), expr('In(C1, P2)'), expr('In(C1, P3'),
-           expr('At(P1, JFK)'), expr('At(P1, ATL'),
-           expr('At(C2, SFO'), expr('At(C2, ATL)'), expr('In(C2, P1)'), expr('In(C2, P2)'), expr('In(C2, P3'),
-           expr('At(P2, SFO)'), expr('At(P2, ATL'),
-           expr('At(C3, SFO)'), expr('At(C3, JFK)'), expr('In(C3, P1'), expr('In(C3, P2)'), expr('In(C3, P3'),
-           expr('At(P3, SFO)'), expr('At(P3, JFK')]
+           expr('At(P1, SFO)'), expr('At(P2, JFK)'), expr('At(P3, ATL)')]
+    neg = [expr('At(C1, JFK)'), expr('At(C1, ATL)'), expr('In(C1, P1)'), expr('In(C1, P2)'), expr('In(C1, P3)'),
+           expr('At(P1, JFK)'), expr('At(P1, ATL)'),
+           expr('At(C2, SFO)'), expr('At(C2, ATL)'), expr('In(C2, P1)'), expr('In(C2, P2)'), expr('In(C2, P3)'),
+           expr('At(P2, SFO)'), expr('At(P2, ATL)'),
+           expr('At(C3, SFO)'), expr('At(C3, JFK)'), expr('In(C3, P1)'), expr('In(C3, P2)'), expr('In(C3, P3)'),
+           expr('At(P3, SFO)'), expr('At(P3, JFK)')]
     init = FluentState(pos, neg)
-    goal = [expr('At(C1, JFK)'), expr('At(C2, SFO)'), expr('C3, SFO')]
+    goal = [expr('At(C1, JFK)'), expr('At(C2, SFO)'), expr('(C3, SFO)')]
     return AirCargoProblem(cargos, planes, airports, init, goal)
 
 
@@ -281,19 +280,16 @@ def air_cargo_p3() -> AirCargoProblem:
     planes = ['P1', 'P2']
     airports = ['SFO', 'JFK', 'ATL', 'ORD']
     pos = [expr('At(C1, SFO)'), expr('At(C2, JFK)'), expr('At(C3, ATL)'), expr('At(C4, ORD)'),
-           expr('At(P1, SFO)'), expr('At(P2, JFK)'),
-           expr('Cargo(C1)'), expr('Cargo(C2)'), expr('Cargo(C3)'), expr('Cargo(C4)'),
-           expr('Plane(P1)'), expr('Plane(P2)'),
-           expr('Airport(JFK)'), expr('Airport(SFO)'), expr('Airport(ATL)'), expr('Airport(ORD)')]
-    neg = [expr('At(C1, JFK)'), expr('At(C1, ATL'), expr('At(C1, ORD'), expr('In(C1, P1)'), expr('In(C1, P2)'),
-           expr('At(P1, JFK'), expr('At(P1, ATL)'), expr('At(P1, ORD'),
+           expr('At(P1, SFO)'), expr('At(P2, JFK)')]
+    neg = [expr('At(C1, JFK)'), expr('At(C1, ATL)'), expr('At(C1, ORD)'), expr('In(C1, P1)'), expr('In(C1, P2)'),
+           expr('At(P1, JFK)'), expr('At(P1, ATL)'), expr('At(P1, ORD)'),
 
-           expr('At(C2, SFO'), expr('At(C2, ATL)'), expr('At(C2, ORD)'), expr('In(C2, P1)'), expr('In(C2, P2)'),
+           expr('At(C2, SFO)'), expr('At(C2, ATL)'), expr('At(C2, ORD)'), expr('In(C2, P1)'), expr('In(C2, P2)'),
            expr('At(P2, SFO)'), expr('At(P2, ATL)'), expr('At(P2, ORD)'),
 
-           expr('At(C3, SFO)'), expr('At(C3, JFK)'), expr('At(C3, ORD)'), expr('In(C3, P1'), expr('In(C3, P2)'),
+           expr('At(C3, SFO)'), expr('At(C3, JFK)'), expr('At(C3, ORD)'), expr('In(C3, P1)'), expr('In(C3, P2)'),
 
-           expr('At(C4, SFO)'), expr('At(C4, JFK)'), expr('At(C4, ATL)'), expr('In(C4, P1'), expr('In(C4, P2)')]
+           expr('At(C4, SFO)'), expr('At(C4, JFK)'), expr('At(C4, ATL)'), expr('In(C4, P1)'), expr('In(C4, P2)')]
     init = FluentState(pos, neg)
-    goal = [expr('At(C1, JFK)'), expr('At(C2, SFO)'), expr('C3, SFO')]
+    goal = [expr('At(C1, JFK)'), expr('At(C3, JFK)'), expr('At(C2, SFO)'), expr('At(C4, SFO)')]
     return AirCargoProblem(cargos, planes, airports, init, goal)
