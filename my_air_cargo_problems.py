@@ -48,7 +48,6 @@ class AirCargoProblem(Problem):
             list of Action objects
         """
 
-        # TODO create concrete Action objects based on the domain action schema for: Load, Unload, and Fly
         # concrete actions definition: specific literal action that does not include variables as with the schema
         # for example, the action schema 'Load(c, p, a)' can represent the concrete actions 'Load(C1, P1, SFO)'
         # or 'Load(C2, P2, JFK)'.  The actions for the planning problem must be concrete because the problems in
@@ -62,7 +61,6 @@ class AirCargoProblem(Problem):
             :return: list of Action objects
             """
             loads = []
-            # TODO create all load ground actions from the domain Load action
             # for each scenario in the loop, generate the preconditions and the effects programatically
             for cargo in self.cargos:
                 for plane in self.planes:
@@ -74,10 +72,6 @@ class AirCargoProblem(Problem):
 
                         precond_positive.append(expr('At(%s, %s)' % (cargo, airport)))
                         precond_positive.append(expr('At(%s, %s)' % (plane, airport)))
-                        # precond_positive.append(expr('Cargo(%s)' % cargo))
-                        # precond_positive.append(expr('Plane(%s)' % plane))
-                        # precond_positive.append(expr('Airport(%s)' % airport))
-
                         # do we need to list every negative precondition?
 
                         effect_add.append(expr('In(%s, %s)' % (cargo, plane)))
@@ -104,13 +98,10 @@ class AirCargoProblem(Problem):
 
                         precond_positive.append(expr('In(%s, %s)' % (cargo, plane)))
                         precond_positive.append(expr('At(%s, %s)' % (plane, airport)))
-                        # precond_positive.append(expr('Cargo(%s)' % cargo))
-                        # precond_positive.append(expr('Plane(%s)' % plane))
-                        # precond_positive.append(expr('Airport(%s)' % airport))
 
                         # negative preconditions?
 
-                        effect_add.append(expr('At(%s, %s)' % (cargo, plane)))
+                        effect_add.append(expr('At(%s, %s)' % (cargo, airport)))
                         effect_remove.append(expr('In(%s, %s)' % (cargo, plane)))
                         unloads.append(Action(expr('Unload(%s, %s, %s)' % (cargo, plane, airport)), [precond_positive, precond_negative], [effect_add, effect_remove]))
             # TODO create all Unload ground actions from the domain Unload action
@@ -261,7 +252,7 @@ def air_cargo_p1() -> AirCargoProblem:
 def air_cargo_p2() -> AirCargoProblem:
     cargos = ['C1', 'C2', 'C3']
     planes = ['P1', 'P2', 'P3']
-    airports = ['SFO', 'JFK', 'ATL']
+    airports = ['JFK', 'SFO', 'ATL']
     pos = [expr('At(C1, SFO)'), expr('At(C2, JFK)'), expr('At(C3, ATL)'),
            expr('At(P1, SFO)'), expr('At(P2, JFK)'), expr('At(P3, ATL)')]
     neg = [expr('At(C1, JFK)'), expr('At(C1, ATL)'), expr('In(C1, P1)'), expr('In(C1, P2)'), expr('In(C1, P3)'),
@@ -271,14 +262,14 @@ def air_cargo_p2() -> AirCargoProblem:
            expr('At(C3, SFO)'), expr('At(C3, JFK)'), expr('In(C3, P1)'), expr('In(C3, P2)'), expr('In(C3, P3)'),
            expr('At(P3, SFO)'), expr('At(P3, JFK)')]
     init = FluentState(pos, neg)
-    goal = [expr('At(C1, JFK)'), expr('At(C2, SFO)'), expr('(C3, SFO)')]
+    goal = [expr('At(C1, JFK)'), expr('At(C2, SFO)'), expr('At(C3, SFO)')]
     return AirCargoProblem(cargos, planes, airports, init, goal)
 
 
 def air_cargo_p3() -> AirCargoProblem:
     cargos = ['C1', 'C2', 'C3', 'C4']
     planes = ['P1', 'P2']
-    airports = ['SFO', 'JFK', 'ATL', 'ORD']
+    airports = ['JFK', 'SFO', 'ATL', 'ORD']
     pos = [expr('At(C1, SFO)'), expr('At(C2, JFK)'), expr('At(C3, ATL)'), expr('At(C4, ORD)'),
            expr('At(P1, SFO)'), expr('At(P2, JFK)')]
     neg = [expr('At(C1, JFK)'), expr('At(C1, ATL)'), expr('At(C1, ORD)'), expr('In(C1, P1)'), expr('In(C1, P2)'),
