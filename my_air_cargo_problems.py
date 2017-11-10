@@ -221,6 +221,24 @@ class AirCargoProblem(Problem):
         """
         # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
         count = 0
+        current_state = Node(self.state_map)
+        # print("the current state %s" % current_state)
+        goal_state = Node(self.goal)
+        # print("the goal state %s" % goal_state)
+        current_state_tf_map = self.initial_state_TF
+        # print("current_state_tf_map %s " % current_state_tf_map)
+        positive_literals = []
+        for index, literal in enumerate(current_state_tf_map):
+            if literal == "T":
+                positive_literals.append(current_state.state[index])
+        # print("the positive literals: %s" % positive_literals)
+
+        # for each clause in the goal
+            # if the goal is not in the list of positive literals
+                # add 1
+        for goal_literal in goal_state.state:
+            if goal_literal not in positive_literals:
+                count += 1
         return count
 
 
