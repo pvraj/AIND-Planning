@@ -303,9 +303,16 @@ class PlanningGraph():
         :return:
             adds A nodes to the current level in self.a_levels[level]
         """
-        # TODO add action A level to the planning graph as described in the Russell-Norvig text
-        # 1. determine what actions to add and create those PgNode_a objects
-        # 2. connect the nodes to the previous S literal level
+        # helpful posts: https://discussions.udacity.com/t/confusion-with-add-action-level/245144/9 , https://discussions.udacity.com/t/add-action-level-and-add-literal-level-methods/399851/2
+        self.a_levels.append(set())
+        for temp_action in self.all_actions: # for all possible actions
+            temp_action_node = PgNode_a(temp_action) # create an action node
+            if temp_action_node.prenodes.issubset(self.s_levels[level]): # if the action node's prenodes are a subset of the literal level
+                for state_node in self.s_levels[level]: # for each literal node in the literal level
+                    if state_node in temp_action_node.prenodes: # if the literal node is in the action's nodes possible prenodes
+                        state_node.children.add(temp_action_node) # connect literal --> action (child)
+                        temp_action_node.parents.add(state_node) # connect action <---- literal (parent)
+                        self.a_levels[level].add(temp_action_node) # add the action to the A set at index level
         # for example, the A0 level will iterate through all possible actions for the problem and add a PgNode_a to a_levels[0]
         #   set iff all prerequisite literals for the action hold in S0.  This can be accomplished by testing
         #   to see if a proposed PgNode_a has prenodes that are a subset of the previous S level.  Once an
@@ -320,7 +327,22 @@ class PlanningGraph():
         :return:
             adds S nodes to the current level in self.s_levels[level]
         """
-        # TODO add literal S level to the planning graph as described in the Russell-Norvig text
+        self.s_levels.append(set())
+        for positive_literal in self.fs.pos:
+            positive_literal_node = PgNode_s(positive_literal, True) # create the positive literal
+            for action_node in self.a_levels[level-1]: # for each action node
+                if positive_literal_node in action_node.effnodes: # if the literal is a possible action effect
+                    action_node.children.add(positive_literal_node) # connect the action ---> literal (child)
+                    positive_literal_node.parents.add(action_node) # connect the action <--- literal (parent)
+                    self.s_levels[level].add(positive_literal_node) # add the literal to the S set at index level
+
+        for negative_literal in self.fs.neg:
+            negative_literal_node = PgNode_s(negative_literal, False) # create the negative literal
+            for action_node in self.a_levels[level-1]: # for each action node
+                if negative_literal_node in action_node.effnodes: # if the literals is a possible action effect
+                    action_node.children.add(negative_literal_node) # connect the action ---> literal (child)
+                    negative_literal_node.parents.add(action_node) # connect the action <--- literal (parent)
+                    self.s_levels[level].add(negative_literal_node) # add the literal to the S set at index level
         # 1. determine what literals to add
         # 2. connect the nodes
         # for example, every A node in the previous level has a list of S nodes in effnodes that represent the effect
