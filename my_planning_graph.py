@@ -328,21 +328,11 @@ class PlanningGraph():
             adds S nodes to the current level in self.s_levels[level]
         """
         self.s_levels.append(set())
-        for positive_literal in self.fs.pos:
-            positive_literal_node = PgNode_s(positive_literal, True) # create the positive literal
-            for action_node in self.a_levels[level-1]: # for each action node
-                if positive_literal_node in action_node.effnodes: # if the literal is a possible action effect
-                    action_node.children.add(positive_literal_node) # connect the action ---> literal (child)
-                    positive_literal_node.parents.add(action_node) # connect the action <--- literal (parent)
-                    self.s_levels[level].add(positive_literal_node) # add the literal to the S set at index level
-
-        for negative_literal in self.fs.neg:
-            negative_literal_node = PgNode_s(negative_literal, False) # create the negative literal
-            for action_node in self.a_levels[level-1]: # for each action node
-                if negative_literal_node in action_node.effnodes: # if the literals is a possible action effect
-                    action_node.children.add(negative_literal_node) # connect the action ---> literal (child)
-                    negative_literal_node.parents.add(action_node) # connect the action <--- literal (parent)
-                    self.s_levels[level].add(negative_literal_node) # add the literal to the S set at index level
+        for action_node in self.a_levels[level-1]: # for each action node in the previous level
+            for possible_literal in action_node.effnodes: # for each possible effnode in the action node
+                action_node.children.add(possible_literal) # connect action ---> literal (child)
+                possible_literal.parents.add(action_node) # connect the action <--- literal (parent)
+                self.s_levels[level].add(possible_literal) # add the literal to the S set at index level
         # 1. determine what literals to add
         # 2. connect the nodes
         # for example, every A node in the previous level has a list of S nodes in effnodes that represent the effect
