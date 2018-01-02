@@ -303,15 +303,17 @@ class PlanningGraph():
         :return:
             adds A nodes to the current level in self.a_levels[level]
         """
-        # helpful posts: https://discussions.udacity.com/t/confusion-with-add-action-level/245144/9 , https://discussions.udacity.com/t/add-action-level-and-add-literal-level-methods/399851/2
+        # my post: https://discussions.udacity.com/t/trouble-with-add-literal-level-and-add-action-level/446926
+        # helpful post: https://discussions.udacity.com/t/confusion-with-add-action-level/245144/9
+        # helpful post: https://discussions.udacity.com/t/add-action-level-and-add-literal-level-methods/399851/2
         self.a_levels.append(set())
         for temp_action in self.all_actions: # for all possible actions
             temp_action_node = PgNode_a(temp_action) # create an action node
             if temp_action_node.prenodes.issubset(self.s_levels[level]): # if the action node's prenodes are a subset of the literal level
                 for state_node in self.s_levels[level]: # for each literal node in the literal level
                     if state_node in temp_action_node.prenodes: # if the literal node is in the action's nodes possible prenodes
-                        state_node.children.add(temp_action_node) # connect literal --> action (child)
-                        temp_action_node.parents.add(state_node) # connect action <---- literal (parent)
+                        state_node.children.add(temp_action_node) # connect literal ----> action (child)
+                        temp_action_node.parents.add(state_node) # connect literal <---- action (parent)
                         self.a_levels[level].add(temp_action_node) # add the action to the A set at index level
         # for example, the A0 level will iterate through all possible actions for the problem and add a PgNode_a to a_levels[0]
         #   set iff all prerequisite literals for the action hold in S0.  This can be accomplished by testing
@@ -397,7 +399,18 @@ class PlanningGraph():
         :param node_a2: PgNode_a
         :return: bool
         """
-        # TODO test for Inconsistent Effects between nodes
+        # action inconsistent effects
+        for expression_1 in node_a1.action.effect_add: # effect of 1 is positive,
+            for expression_2 in node_a2.action.effect_rem: # effect of 2 is negative
+                if expression_1 == expression_2:
+                    # print("1: inconsistent! %s == %s" % (expression_1, expression_2))
+                    return True
+        # action inconsistent effects
+        for expr_2 in node_a2.action.effect_add: # effect of 2 is positive,
+            for expr_1 in node_a1.action.effect_rem: # effect of 1 is negative
+                if expr_2 == expr_1:
+                    # print("2: inconsistent! %s == %s" % (expr_2, expr_1))
+                    return True
         return False
 
     def interference_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
