@@ -423,7 +423,35 @@ class PlanningGraph():
         :param node_a2: PgNode_a
         :return: bool
         """
-        # TODO test for Interference between nodes
+        for a1_effect in node_a1.action.effect_add: # for each positive effect of action 1
+            for a2_precondition in node_a2.action.precond_neg: # for each negative precondition of action 2
+                if a1_effect == a2_precondition: # if they are equal, interference.
+                    print("1 (effect) and ~2 (precondition): interference! %s, %s" % (node_a1.action, node_a2.action))
+                    return True
+
+        # for each negative effect of action 1
+        # for each positive precondition of action 2
+        for a1_negative_effect in node_a1.action.effect_rem:
+            for a2_positive_precondition in node_a2.action.precond_pos:
+                if a1_negative_effect == a2_positive_precondition:
+                    print("~1 (effect) and 2 (precondition): interference! %s, %s" % (node_a1.action, node_a2.action))
+                    return True
+
+        # for each negative effect of action 2
+        # for each positive precondition of action 1
+        for a2_negative_effect in node_a2.action.effect_rem:
+            for a1_positive_precondition in node_a1.action.precond_pos:
+                if a2_negative_effect == a1_positive_precondition:
+                    print("~2 (effect) and 1 (precondition): interference! %s, %s" % (node_a1.action, node_a2.action))
+                    return True
+
+        for a2_effect in node_a2.action.effect_add: # for each positive effect of action 2
+            for a1_precondition in node_a1.action.precond_neg: # for each negative precondition of action 1
+                if a2_effect == a1_precondition: # if they are equal, interference
+                    print("2 (effect) and ~1 (precondition): interference: %s, %s" % (node_a1.action, node_a2.action))
+                    return True
+
+        print("no interference for %s and %s" % (node_a1.action, node_a2.action))
         return False
 
     def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
