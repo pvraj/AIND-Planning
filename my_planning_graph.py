@@ -464,8 +464,31 @@ class PlanningGraph():
         :param node_a2: PgNode_a
         :return: bool
         """
+        # either if the 2 have mutex preconditions, or if the 2 have opposite preconditions?
+        # when is the is_mutex called? how do we know they already have tested for opposite preconditions?
+        # helpful post <https://discussions.udacity.com/t/problem-with-test-competing-needs-mutex/227344/10>
+        # helpful post: <https://discussions.udacity.com/t/action-node-parent-vs-prenode-and-children-vs-effnode/249833>. Parents/children vs prenodes/effnodes does not seem to be well defined.
 
-        # TODO test for Competing Needs between nodes
+        for a1_parent in node_a1.parents:
+            for a2_parent in node_a2.parents:
+                if a1_parent.is_mutex(a2_parent) or a2_parent.is_mutex(a1_parent):
+                    return True
+
+        for a2_parent in node_a2.parents:
+            for a1_parent in node_a1.parents:
+                if a1_parent.is_mutex(a2_parent) or a2_parent.is_mutex(a1_parent):
+                    return True
+
+        for a1_precondition in node_a1.prenodes:
+            for a2_precondition in node_a2.prenodes:
+                if a1_precondition.is_mutex(a2_precondition) or a2_precondition.is_mutex(a1_precondition):
+                    return True
+
+        for a2_precondition in node_a2.prenodes:
+            for a1_precondition in node_a1.prenodes:
+                if a2_precondition.is_mutex(a1_precondition) or a1_precondition.is_mutex(a2_precondition):
+                    return True
+
         return False
 
     def update_s_mutex(self, nodeset: set):
@@ -500,7 +523,8 @@ class PlanningGraph():
         :param node_s2: PgNode_s
         :return: bool
         """
-        # TODO test for negation between nodes
+        if (node_s1.symbol == node_s2.symbol) and (node_s1.is_pos != node_s2.is_pos):
+            return True
         return False
 
     def inconsistent_support_mutex(self, node_s1: PgNode_s, node_s2: PgNode_s):
