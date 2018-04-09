@@ -426,7 +426,7 @@ class PlanningGraph():
         for a1_effect in node_a1.action.effect_add: # for each positive effect of action 1
             for a2_precondition in node_a2.action.precond_neg: # for each negative precondition of action 2
                 if a1_effect == a2_precondition: # if they are equal, interference.
-                    print("1 (effect) and ~2 (precondition): interference! %s, %s" % (node_a1.action, node_a2.action))
+                    # print("1 (effect) and ~2 (precondition): interference! %s, %s" % (node_a1.action, node_a2.action))
                     return True
 
         # for each negative effect of action 1
@@ -434,7 +434,7 @@ class PlanningGraph():
         for a1_negative_effect in node_a1.action.effect_rem:
             for a2_positive_precondition in node_a2.action.precond_pos:
                 if a1_negative_effect == a2_positive_precondition:
-                    print("~1 (effect) and 2 (precondition): interference! %s, %s" % (node_a1.action, node_a2.action))
+                    # print("~1 (effect) and 2 (precondition): interference! %s, %s" % (node_a1.action, node_a2.action))
                     return True
 
         # for each negative effect of action 2
@@ -442,16 +442,16 @@ class PlanningGraph():
         for a2_negative_effect in node_a2.action.effect_rem:
             for a1_positive_precondition in node_a1.action.precond_pos:
                 if a2_negative_effect == a1_positive_precondition:
-                    print("~2 (effect) and 1 (precondition): interference! %s, %s" % (node_a1.action, node_a2.action))
+                    # print("~2 (effect) and 1 (precondition): interference! %s, %s" % (node_a1.action, node_a2.action))
                     return True
 
         for a2_effect in node_a2.action.effect_add: # for each positive effect of action 2
             for a1_precondition in node_a1.action.precond_neg: # for each negative precondition of action 1
                 if a2_effect == a1_precondition: # if they are equal, interference
-                    print("2 (effect) and ~1 (precondition): interference: %s, %s" % (node_a1.action, node_a2.action))
+                    # print("2 (effect) and ~1 (precondition): interference: %s, %s" % (node_a1.action, node_a2.action))
                     return True
 
-        print("no interference for %s and %s" % (node_a1.action, node_a2.action))
+        # print("no interference for %s and %s" % (node_a1.action, node_a2.action))
         return False
 
     def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
@@ -544,7 +544,18 @@ class PlanningGraph():
         :return: bool
         """
         # TODO test for Inconsistent Support between nodes
-        return False
+        # all actions achieving node_s1 do not intersect with all actions achieving node_s
+        for action_node1 in node_s1.parents:
+            for action_node2 in node_s2.parents:
+                if not action_node1.is_mutex(action_node2):
+                    return False
+
+        for action_node2 in node_s2.parents:
+            for action_node1 in node_s1.parents:
+                if not action_node2.is_mutex(action_node1):
+                    return False
+
+        return True
 
     def h_levelsum(self) -> int:
         """The sum of the level costs of the individual goals (admissible if goals independent)
@@ -554,4 +565,26 @@ class PlanningGraph():
         level_sum = 0
         # TODO implement
         # for each goal in the problem, determine the level cost, then add them together
+        # if a goal appears in more than one level, you should add the first literal it appears
+
+        def h_levelsum_helper(goal_literal: Expr, s_levels_list: list) -> int:
+            '''
+            Description: This helper takes as input a goal literal, and returns the first occurence of it
+            :return: (int)
+            '''
+            level_sum = 0
+            for index, level in enumerate(s_levels_list):
+                # print("index %s; Level %s" % (index, level))
+                for expression in level:
+                    if (goal_literal == expression.symbol) and (expression.is_pos):
+                        # print("We found a match!: %s; %s" % (expression.symbol, expression.is_pos))
+                        return index
+            print("should not get here")
+            return level_sum
+
+        for goal_literal in self.problem.goal: # for each goal
+            # print("Searching for: %s" % goal_literal)
+            level_sum += h_levelsum_helper(goal_literal, self.s_levels)
+        # print("final level sum %s" % level_sum)
         return level_sum
+
