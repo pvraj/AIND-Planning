@@ -52,8 +52,6 @@ class AirCargoProblem(Problem):
         # for example, the action schema 'Load(c, p, a)' can represent the concrete actions 'Load(C1, P1, SFO)'
         # or 'Load(C2, P2, JFK)'.  The actions for the planning problem must be concrete because the problems in
         # forward search and Planning Graphs must use Propositional Logic
-        # print("the state map: %s" % self.state_map)
-        # print("the initial state TF: %s" % self.initial_state_TF)
 
         def load_actions():
             """Create all concrete Load actions and return a list
@@ -165,7 +163,6 @@ class AirCargoProblem(Problem):
         """
         new_state = FluentState([], [])
         old_state = decode_state(state, self.state_map)
-        # print("the old state: %s ; the old state (arg): %s; the action to take: %s" % (old_state, state, action))
         for fluent in old_state.pos:
             if fluent not in action.effect_rem:
                 new_state.pos.append(fluent)
@@ -205,6 +202,7 @@ class AirCargoProblem(Problem):
         state space to estimate the sum of all actions that must be carried
         out from the current state in order to satisfy each individual goal
         condition.
+        :return (int) Heuristic estimate.
         """
         # requires implemented PlanningGraph class
         pg = PlanningGraph(self, node.state)
@@ -218,46 +216,28 @@ class AirCargoProblem(Problem):
         carried out from the current state in order to satisfy all of the goal
         conditions by ignoring the preconditions required for an action to be
         executed.
+        :return: (int) Heuristic estimate.
         """
         # TODO implement (see Russell-Norvig Ed-3 10.2.3  or Russell-Norvig Ed-2 11.2)
         count = 0
-        print("the current state: %s" % node.state)
-        print("the current state_map: %s" % self.state_map)
-        print("the goal state: %s" % self.goal)
 
         positive_literals = []
         for index, literal in enumerate(node.state):
             if literal == "T":
                 positive_literals.append(self.state_map[index])
-        print("the positive literals: %s" % positive_literals)
 
         for goal_literal in self.goal:
             if goal_literal not in positive_literals:
                 count += 1
 
-        # current_state = Node(self.state_map)
-        # print("the current state %s" % current_state)
-        # goal_state = Node(self.goal)
-        # print("the goal state %s" % goal_state)
-        # current_state_tf_map = self.initial_state_TF
-        # print("current_state_tf_map %s " % current_state_tf_map)
-        # # print("state variable %s" % current_state.state)
-        # positive_literals = []
-        # for index, literal in enumerate(current_state_tf_map):
-        #     if literal == "T":
-        #         positive_literals.append(current_state.state[index])
-        # # print("the positive literals: %s" % positive_literals)
-        #
-        # # for each clause in the goal
-        #     # if the goal is not in the list of positive literals
-        #         # add 1
-        # for goal_literal in goal_state.state:
-        #     if goal_literal not in positive_literals:
-        #         count += 1
         return count
 
 
 def air_cargo_p1() -> AirCargoProblem:
+    '''
+    Description: This function initializes the variables for, and returns an AirCargoProblem instance, for air_cargo_p1.
+    :return: (AirCargoProblem) AirCargoProblem instance for air_cargo_p1.
+    '''
     cargos = ['C1', 'C2']
     planes = ['P1', 'P2']
     airports = ['JFK', 'SFO']
@@ -283,6 +263,10 @@ def air_cargo_p1() -> AirCargoProblem:
 
 
 def air_cargo_p2() -> AirCargoProblem:
+    '''
+    Description: This function initializes the variables for, and returns an AirCargoProblem instance, for air_cargo_p2.
+    :return: (AirCargoProblem) AirCargoProblem instance for air_cargo_p2.
+    '''
     cargos = ['C1', 'C2', 'C3']
     planes = ['P1', 'P2', 'P3']
     airports = ['JFK', 'SFO', 'ATL']
@@ -300,6 +284,10 @@ def air_cargo_p2() -> AirCargoProblem:
 
 
 def air_cargo_p3() -> AirCargoProblem:
+    '''
+    Description: This function initializes the variables for, and returns an AirCargoProblem instance, for air_cargo_p3.
+    :return: (AirCargoProblem) AirCargoProblem instance for air_cargo_p3.
+    '''
     cargos = ['C1', 'C2', 'C3', 'C4']
     planes = ['P1', 'P2']
     airports = ['JFK', 'SFO', 'ATL', 'ORD']
